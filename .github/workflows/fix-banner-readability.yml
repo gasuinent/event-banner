@@ -1,0 +1,31 @@
+name: Fix banner readability
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Improve text readability only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("linear-gradient(rgba(3,10,22,.35),rgba(3,10,22,.48)),url('${p}') center/cover no-repeat", "linear-gradient(rgba(3,10,22,.62),rgba(3,10,22,.72)),url('${p}') center/cover no-repeat")
+          s=s.replace("text-shadow:4px 4px 0 #000;pointer-events:none", "text-shadow:3px 3px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;pointer-events:none")
+          s=s.replace("font-size:1.15cqw;font-weight:900;line-height:1.15;text-shadow:1px 1px 2px #000", "font-size:1.15cqw;font-weight:900;line-height:1.15;text-shadow:1px 1px 2px #000;background:rgba(0,0,0,.42);border-radius:.45cqw;padding:.25cqw .6cqw")
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "improve banner text readability" || true
+          git push
+          rm -f .github/workflows/fix-banner-readability.yml
+          git add .github/workflows/fix-banner-readability.yml
+          git commit -m "remove temporary readability workflow" || true
+          git push
